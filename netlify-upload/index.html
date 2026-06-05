@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A1 Mobile Tire Service | Request and Dispatch</title>
+    <meta
+      name="description"
+      content="A1 Mobile Tire Service roadside request form for 24/7 mobile tire service, commercial tire service, lockouts, jumpstarts, and fuel delivery."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" id="top">
+      <header class="app-header">
+        <a class="brand" href="#customer" aria-label="A1 Mobile Tire Service home">
+          <span class="brand-mark">A1</span>
+          <span>
+            <strong>A1 Mobile Tire Service</strong>
+            <small>24/7 roadside dispatch</small>
+          </span>
+        </a>
+        <a class="header-call" href="tel:2625273209" aria-label="Call A1 Mobile Tire Service">Call</a>
+      </header>
+
+      <main>
+        <section class="view is-active" id="customer" data-view="customer" aria-labelledby="customer-title">
+          <section class="hero-card" aria-labelledby="customer-title">
+            <img class="hero-image" src="assets/hero-mobile-tire-service.png" alt="Mobile tire technician replacing a tire at night" />
+            <div class="hero-shade"></div>
+            <div class="hero-content">
+              <p class="status-pill"><span></span> Open now</p>
+              <h1 id="customer-title">Roadside help, sent to you.</h1>
+              <p>Fill out the request and A1 Mobile Tire Service can review the job details fast.</p>
+              <div class="hero-actions">
+                <a class="action-button call-button" href="tel:2625273209">Call 262-527-3209</a>
+                <a class="action-button request-button" href="#request">Start Request</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="app-section mission-section" aria-labelledby="mission-title">
+            <div>
+              <p class="eyebrow">Our mission</p>
+              <h2 id="mission-title">Convenient, reliable tire service built on real experience.</h2>
+              <p>
+                A1 Mobile Tire Service has been in the tire industry for almost 20 years. We stay up to date
+                with training so we can adapt to an ever-changing industry and service today's vehicles with
+                confidence.
+              </p>
+              <p>
+                We are one of the few tire companies you will find with the capability to service Tesla vehicles
+                as well as gas, diesel, hybrid, and other electric vehicles. Our goal is simple: provide convenient,
+                reliable roadside service when drivers need it most.
+              </p>
+            </div>
+          </section>
+
+          <section class="app-section provider-section" aria-labelledby="provider-title">
+            <div>
+              <p class="eyebrow">Business opportunities</p>
+              <h2 id="provider-title">Interested in starting your own mobile tire business?</h2>
+              <p>
+                If you are interested in becoming a mobile tire service provider or learning more about starting
+                your own mobile tire business, contact A1 Mobile Tire Service to discuss service provider
+                opportunities, training, and next steps.
+              </p>
+            </div>
+            <a class="action-button call-button provider-button" href="tel:2625273209">Call to learn more</a>
+          </section>
+
+          <section class="app-section" aria-labelledby="service-title">
+            <div class="section-title-row">
+              <div>
+                <p class="eyebrow">Step 1</p>
+                <h2 id="service-title">Service needed</h2>
+              </div>
+              <span class="mini-badge">24/7</span>
+            </div>
+
+            <div class="service-picker" role="radiogroup" aria-label="Select service needed">
+              <button class="service-option is-selected" type="button" data-service="Tire replacement" role="radio" aria-checked="true">
+                <span class="service-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M19 13a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/><path d="M12 8v10M7 13h10M8.5 9.5l7 7M15.5 9.5l-7 7"/></svg>
+                </span>
+                <span><strong>Tire replacement</strong><small>Flat or damaged tire</small></span>
+              </button>
+
+              <button class="service-option" type="button" data-service="Lockout" role="radio" aria-checked="false">
+                <span class="service-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3"/><path d="M6 11h12v9H6z"/><path d="M12 15v2"/></svg>
+                </span>
+                <span><strong>Lockout</strong><small>Keys locked inside</small></span>
+              </button>
+
+              <button class="service-option" type="button" data-service="Jumpstart" role="radio" aria-checked="false">
+                <span class="service-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 10-13h-7z"/></svg>
+                </span>
+                <span><strong>Jumpstart</strong><small>Dead battery help</small></span>
+              </button>
+
+              <button class="service-option" type="button" data-service="Fuel delivery" role="radio" aria-checked="false">
+                <span class="service-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M5 3h9v18H5z"/><path d="M14 7h3l2 3v8a2 2 0 0 1-4 0"/><path d="M8 7h3"/></svg>
+                </span>
+                <span><strong>Fuel delivery</strong><small>Out of gas</small></span>
+              </button>
+
+              <button class="service-option" type="button" data-service="Commercial tire service" role="radio" aria-checked="false">
+                <span class="service-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M3 7h11v10H3z"/><path d="M14 10h4l3 3v4h-7z"/><path d="M7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M18 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></svg>
+                </span>
+                <span><strong>Commercial tire service</strong><small>Work trucks and fleet vehicles</small></span>
+              </button>
+            </div>
+          </section>
+
+          <section class="app-section request-panel" id="request" aria-labelledby="request-title">
+            <div class="section-title-row">
+              <div>
+                <p class="eyebrow">Step 2</p>
+                <h2 id="request-title">Customer and vehicle details</h2>
+              </div>
+            </div>
+
+            <form class="request-form" data-request-form>
+              <input type="hidden" name="service" value="Tire replacement" data-selected-service />
+
+              <div class="form-grid">
+                <label>
+                  Customer name
+                  <input type="text" name="name" autocomplete="name" placeholder="Full name" required />
+                </label>
+
+                <label>
+                  Phone number
+                  <input type="tel" name="phone" autocomplete="tel" placeholder="Callback number" required />
+                </label>
+
+                <label>
+                  Vehicle make
+                  <input type="text" name="make" placeholder="Ford, Toyota, Chevy" required />
+                </label>
+
+                <label>
+                  Vehicle model
+                  <input type="text" name="model" placeholder="F-150, Camry, Malibu" required />
+                </label>
+
+                <label>
+                  Tire size
+                  <input type="text" name="tireSize" placeholder="Example: 225/60R17" required />
+                </label>
+
+                <label>
+                  Current location
+                  <input type="text" name="location" autocomplete="street-address" placeholder="Address, lot, or landmark" required />
+                </label>
+              </div>
+
+              <label>
+                Photo upload
+                <input type="file" name="photo" accept="image/*" />
+              </label>
+
+              <label>
+                Notes
+                <textarea name="notes" rows="4" placeholder="Tell us what happened, where the vehicle is parked, or anything urgent."></textarea>
+              </label>
+
+              <div class="request-summary" aria-live="polite">
+                <span>Selected service</span>
+                <strong data-summary-service>Tire replacement</strong>
+              </div>
+
+              <label class="policy-check">
+                <input type="checkbox" name="policiesAccepted" required />
+                <span>
+                  I have read and understand the
+                  <a href="policies.html" target="_blank" rel="noopener">A1 Mobile Tire Service policies</a>.
+                </span>
+              </label>
+
+              <button class="action-button call-button full-width" type="submit">Submit Request</button>
+              <p class="form-message" data-form-message role="status"></p>
+            </form>
+          </section>
+        </section>
+
+      </main>
+    </div>
+
+    <nav class="bottom-bar" aria-label="Quick actions">
+      <a href="tel:2625273209">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.7.6 2.5a2 2 0 0 1-.5 2.1L8 9.5a16 16 0 0 0 6.5 6.5l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.6.5 2.5.6a2 2 0 0 1 1.7 2Z"/></svg>
+        Call
+      </a>
+      <a href="#request" data-bottom-request>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Request
+      </a>
+      <a href="policies.html">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h6"/></svg>
+        Policies
+      </a>
+    </nav>
+
+    <script src="script.js"></script>
+  </body>
+</html>
