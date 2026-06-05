@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A1 Mobile Tire Service | Admin Dashboard</title>
+    <meta name="description" content="A1 Mobile Tire Service admin dispatch dashboard." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" id="top">
+      <header class="app-header">
+        <a class="brand" href="index.html" aria-label="Back to A1 Mobile Tire Service">
+          <span class="brand-mark">A1</span>
+          <span>
+            <strong>A1 Mobile Tire Service</strong>
+            <small>Admin dispatch</small>
+          </span>
+        </a>
+        <button class="header-call" type="button" data-admin-sign-out>Sign out</button>
+      </header>
+
+      <main>
+        <section class="app-section admin-login" data-admin-login hidden>
+          <p class="eyebrow">Admin login</p>
+          <h1>Sign in to dispatch</h1>
+          <form class="request-form" data-admin-login-form>
+            <label>
+              Email
+              <input type="email" name="email" autocomplete="email" required />
+            </label>
+            <label>
+              Password
+              <input type="password" name="password" autocomplete="current-password" required />
+            </label>
+            <button class="action-button call-button full-width" type="submit">Sign in</button>
+            <p class="form-message" data-admin-login-message role="status"></p>
+          </form>
+        </section>
+
+        <section class="view admin-view is-active" id="admin" data-view="admin" aria-labelledby="admin-title" hidden>
+          <section class="app-section dashboard-hero">
+            <div>
+              <p class="eyebrow">Admin dashboard</p>
+              <h1 id="admin-title">Dispatch requests</h1>
+              <p>Review customer info, accept or decline jobs, update ETA, and mark jobs complete.</p>
+            </div>
+          </section>
+
+          <section class="dashboard-stats" aria-label="Job counts">
+            <div><strong data-count="new">0</strong><span>New</span></div>
+            <div><strong data-count="accepted">0</strong><span>Accepted</span></div>
+            <div><strong data-count="complete">0</strong><span>Complete</span></div>
+          </section>
+
+          <section class="app-section jobs-panel" aria-labelledby="jobs-title">
+            <div class="section-title-row">
+              <div>
+                <p class="eyebrow">Jobs</p>
+                <h2 id="jobs-title">Request queue</h2>
+              </div>
+            </div>
+            <div class="job-list" data-job-list></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
