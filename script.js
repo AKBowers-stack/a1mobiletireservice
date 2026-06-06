@@ -55,7 +55,18 @@ function publicPhoneNumber(phone) {
 
 function smsLink(phone, message) {
   const cleanPhone = publicPhoneNumber(phone);
-  return `sms:${cleanPhone}?&body=${encodeURIComponent(message)}`;
+  const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const separator = isAppleMobile ? "&" : "?";
+  return `sms:${cleanPhone}${separator}body=${encodeURIComponent(message)}`;
+}
+
+function openSms(phone, message) {
+  const link = document.createElement("a");
+  link.href = smsLink(phone, message);
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 }
 
 async function uploadPhoto(file) {
@@ -168,6 +179,7 @@ async function renderJobs() {
               <button class="decline" type="button" data-action="decline">Decline</button>
               <button class="complete" type="button" data-action="complete">Mark complete</button>
               <button class="neutral" type="button" data-action="send-eta">Text ETA</button>
+              <a class="action-button neutral" href="sms:${publicPhoneNumber(job.phone)}">Text customer</a>
               <a class="action-button neutral" href="tel:${publicPhoneNumber(job.phone)}">Call customer</a>
             </div>
           </article>
@@ -282,7 +294,7 @@ jobList?.addEventListener("click", async (event) => {
     }
 
     const message = `A1 Mobile Tire Service update: your technician ETA is ${eta}. Reply or call 262-527-3209 with any questions.`;
-    window.location.href = smsLink(customerPhone, message);
+    openSms(customerPhone, message);
     updateJob(jobId, { eta });
   }
 });
