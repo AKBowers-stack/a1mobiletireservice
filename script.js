@@ -53,20 +53,18 @@ function publicPhoneNumber(phone) {
   return escapeHtml(phone).replace(/\D/g, "");
 }
 
-function smsLink(phone, message) {
+function smsPhoneNumber(phone) {
   const cleanPhone = publicPhoneNumber(phone);
-  const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const separator = isAppleMobile ? "&" : "?";
-  return `sms:${cleanPhone}${separator}body=${encodeURIComponent(message)}`;
+  return cleanPhone.length === 10 ? `+1${cleanPhone}` : `+${cleanPhone}`;
 }
 
-function openSms(phone, message) {
-  const link = document.createElement("a");
-  link.href = smsLink(phone, message);
-  link.style.display = "none";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+function etaMessage(eta) {
+  return `A1 Mobile Tire Service update: your technician ETA is ${eta}. Reply or call 262-527-3209 with any questions.`;
+}
+
+function smsLink(phone, message) {
+  const separator = /iPad|iPhone|iPod/.test(navigator.userAgent) ? "&" : "?";
+  return `sms:${smsPhoneNumber(phone)}${separator}body=${encodeURIComponent(message)}`;
 }
 
 async function uploadPhoto(file) {
@@ -178,8 +176,8 @@ async function renderJobs() {
               <button class="accept" type="button" data-action="accept">Accept job</button>
               <button class="decline" type="button" data-action="decline">Decline</button>
               <button class="complete" type="button" data-action="complete">Mark complete</button>
-              <button class="neutral" type="button" data-action="send-eta">Text ETA</button>
-              <a class="action-button neutral" href="sms:${publicPhoneNumber(job.phone)}">Text customer</a>
+              <a class="action-button neutral" href="${job.eta ? smsLink(job.phone, etaMessage(job.eta)) : `sms:${smsPhoneNumber(job.phone)}`}" data-action="text-eta">Text ETA</a>
+              <a class="action-button neutral" href="sms:${smsPhoneNumber(job.phone)}">Text customer</a>
               <a class="action-button neutral" href="tel:${publicPhoneNumber(job.phone)}">Call customer</a>
             </div>
           </article>
@@ -284,19 +282,30 @@ jobList?.addEventListener("click", async (event) => {
     const eta = jobCard.querySelector("[data-eta-input]").value.trim();
     await updateJob(jobId, { eta });
   }
-  if (action === "send-eta") {
+  if (action === "text-eta") {
     const eta = jobCard.querySelector("[data-eta-input]").value.trim();
-    const customerPhone = jobCard.dataset.customerPhone;
 
     if (!eta) {
+      event.preventDefault();
       alert("Enter an ETA first.");
       return;
     }
 
-    const message = `A1 Mobile Tire Service update: your technician ETA is ${eta}. Reply or call 262-527-3209 with any questions.`;
-    openSms(customerPhone, message);
     updateJob(jobId, { eta });
   }
+});
+
+jobList?.addEventListener("input", (event) => {
+  if (!event.target.matches("[data-eta-input]")) return;
+
+  const jobCard = event.target.closest("[data-job-id]");
+  const textEtaLink = jobCard.querySelector('[data-action="text-eta"]');
+  const eta = event.target.value.trim();
+  const customerPhone = jobCard.dataset.customerPhone;
+
+  textEtaLink.href = eta
+    ? smsLink(customerPhone, etaMessage(eta))
+    : `sms:${smsPhoneNumber(customerPhone)}`;
 });
 
 if (bottomRequest) {
