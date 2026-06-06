@@ -17,18 +17,34 @@
             <small>Admin dispatch</small>
           </span>
         </a>
-        <a class="header-call" href="tel:2625273209" aria-label="Call A1 Mobile Tire Service">Call</a>
+        <button class="header-call" type="button" data-admin-sign-out>Sign out</button>
       </header>
 
       <main>
-        <section class="view admin-view is-active" id="admin" data-view="admin" aria-labelledby="admin-title">
+        <section class="app-section admin-login" data-admin-login hidden>
+          <p class="eyebrow">Admin login</p>
+          <h1>Sign in to dispatch</h1>
+          <form class="request-form" data-admin-login-form>
+            <label>
+              Email
+              <input type="email" name="email" autocomplete="email" required />
+            </label>
+            <label>
+              Password
+              <input type="password" name="password" autocomplete="current-password" required />
+            </label>
+            <button class="action-button call-button full-width" type="submit">Sign in</button>
+            <p class="form-message" data-admin-login-message role="status"></p>
+          </form>
+        </section>
+
+        <section class="view admin-view is-active" id="admin" data-view="admin" aria-labelledby="admin-title" hidden>
           <section class="app-section dashboard-hero">
             <div>
               <p class="eyebrow">Admin dashboard</p>
               <h1 id="admin-title">Dispatch requests</h1>
               <p>Review customer info, accept or decline jobs, update ETA, and mark jobs complete.</p>
             </div>
-            <button class="action-button request-button dark" type="button" data-seed-job>Add demo request</button>
           </section>
 
           <section class="dashboard-stats" aria-label="Job counts">
@@ -50,6 +66,8 @@
       </main>
     </div>
 
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js?v=20260605-3"></script>
+    <script src="script.js?v=20260605-3"></script>
   </body>
 </html>
