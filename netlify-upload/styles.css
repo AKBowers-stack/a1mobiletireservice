@@ -557,6 +557,32 @@ select:focus {
   text-underline-offset: 3px;
 }
 
+.signature-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.signature-panel h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.signature-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.signature-input {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  font-style: italic;
+}
+
 .full-width {
   width: 100%;
 }
@@ -621,6 +647,32 @@ select:focus {
 .job-list {
   display: grid;
   gap: 12px;
+}
+
+.dashboard-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 5px;
+  background: #e5ebf1;
+  border-radius: 8px;
+}
+
+.dashboard-tab {
+  min-height: 44px;
+  padding: 10px 14px;
+  color: #425062;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  font-weight: 900;
+}
+
+.dashboard-tab.is-active {
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(16, 24, 32, 0.08);
 }
 
 .empty-state {

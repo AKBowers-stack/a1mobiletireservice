@@ -43,22 +43,30 @@
             <div>
               <p class="eyebrow">Admin dashboard</p>
               <h1 id="admin-title">Dispatch requests</h1>
-              <p>Review customer info, accept or decline jobs, update ETA, and mark jobs complete.</p>
+              <p>Review active requests, update jobs, and keep completed service records in the archive.</p>
             </div>
           </section>
 
           <section class="dashboard-stats" aria-label="Job counts">
             <div><strong data-count="new">0</strong><span>New</span></div>
             <div><strong data-count="accepted">0</strong><span>Accepted</span></div>
-            <div><strong data-count="complete">0</strong><span>Complete</span></div>
+            <div><strong data-count="complete">0</strong><span>Archived</span></div>
           </section>
 
           <section class="app-section jobs-panel" aria-labelledby="jobs-title">
             <div class="section-title-row">
               <div>
                 <p class="eyebrow">Jobs</p>
-                <h2 id="jobs-title">Request queue</h2>
+                <h2 id="jobs-title" data-jobs-title>Active requests</h2>
               </div>
+            </div>
+            <div class="dashboard-tabs" role="tablist" aria-label="Request views">
+              <button class="dashboard-tab is-active" type="button" role="tab" aria-selected="true" data-job-filter="active">
+                Active
+              </button>
+              <button class="dashboard-tab" type="button" role="tab" aria-selected="false" data-job-filter="archive">
+                Archive
+              </button>
             </div>
             <div class="job-list" data-job-list></div>
           </section>
@@ -67,7 +75,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js?v=20260605-3"></script>
-    <script src="script.js?v=20260605-3"></script>
+    <script src="supabase-config.js?v=20260607-1"></script>
+    <script src="script.js?v=20260607-1"></script>
   </body>
 </html>

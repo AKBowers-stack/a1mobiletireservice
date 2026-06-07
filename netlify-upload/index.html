@@ -206,6 +206,18 @@
                 </label>
 
                 <label>
+                  License plate number
+                  <input
+                    type="text"
+                    name="licensePlate"
+                    autocomplete="off"
+                    autocapitalize="characters"
+                    placeholder="Plate number"
+                    required
+                  />
+                </label>
+
+                <label>
                   Current location
                   <input type="text" name="location" autocomplete="street-address" placeholder="Address, lot, or landmark" required />
                 </label>
@@ -229,10 +241,33 @@
               <label class="policy-check">
                 <input type="checkbox" name="policiesAccepted" required />
                 <span>
-                  I have read and understand the
-                  <a href="policies.html" target="_blank" rel="noopener">A1 Mobile Tire Service policies</a>.
+                  I have read, understand, and agree to the
+                  <a href="policies.html" target="_blank" rel="noopener">A1 Mobile Tire Service policies</a>,
+                  and I authorize A1 Mobile Tire Service to perform the requested service.
                 </span>
               </label>
+
+              <section class="signature-panel" aria-labelledby="signature-title">
+                <div>
+                  <h3 id="signature-title">Customer signature</h3>
+                  <p>
+                    Type your full legal name. This electronic signature confirms your agreement to the policies
+                    above.
+                  </p>
+                </div>
+                <label>
+                  Full legal name
+                  <input
+                    class="signature-input"
+                    type="text"
+                    name="signatureName"
+                    autocomplete="name"
+                    placeholder="Type your full legal name"
+                    required
+                  />
+                </label>
+                <input type="hidden" name="policyVersion" value="2026-06-07" />
+              </section>
 
               <button class="action-button call-button full-width" type="submit">Submit Request</button>
               <p class="form-message" data-form-message role="status"></p>
@@ -259,7 +294,7 @@
     </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js?v=20260605-4"></script>
-    <script src="script.js?v=20260605-4"></script>
+    <script src="supabase-config.js?v=20260607-1"></script>
+    <script src="script.js?v=20260607-1"></script>
   </body>
 </html>

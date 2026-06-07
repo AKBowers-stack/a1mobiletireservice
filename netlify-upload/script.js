@@ -17,6 +17,9 @@ const adminView = document.querySelector("[data-view='admin']");
 const adminLoginForm = document.querySelector("[data-admin-login-form]");
 const adminLoginMessage = document.querySelector("[data-admin-login-message]");
 const adminSignOutButtons = document.querySelectorAll("[data-admin-sign-out]");
+const jobFilterButtons = document.querySelectorAll("[data-job-filter]");
+const jobsTitle = document.querySelector("[data-jobs-title]");
+let currentJobFilter = "active";
 
 function setSelectedService(service, selectedButton) {
   if (!selectedServiceInput || !summaryService) return;
@@ -130,13 +133,20 @@ async function renderJobs() {
     counts.accepted.textContent = countByStatus.accepted;
     counts.complete.textContent = countByStatus.complete;
 
-    if (!jobs.length) {
-      jobList.innerHTML = '<p class="empty-state">No requests yet.</p>';
+    const visibleJobs = jobs.filter((job) =>
+      currentJobFilter === "archive" ? job.status === "complete" : job.status !== "complete"
+    );
+
+    if (!visibleJobs.length) {
+      jobList.innerHTML =
+        currentJobFilter === "archive"
+          ? '<p class="empty-state">No completed requests have been archived yet.</p>'
+          : '<p class="empty-state">No active requests right now.</p>';
       return;
     }
 
     const jobsWithPhotos = await Promise.all(
-      jobs.map(async (job) => ({ ...job, photo_url: await getPhotoUrl(job.photo_path) }))
+      visibleJobs.map(async (job) => ({ ...job, photo_url: await getPhotoUrl(job.photo_path) }))
     );
 
     jobList.innerHTML = jobsWithPhotos
@@ -156,8 +166,13 @@ async function renderJobs() {
               <div class="detail"><span>Phone</span><strong><a href="tel:${publicPhoneNumber(job.phone)}">${escapeHtml(job.phone)}</a></strong></div>
               <div class="detail"><span>Vehicle</span><strong>${escapeHtml(job.make)} ${escapeHtml(job.model)}</strong></div>
               <div class="detail"><span>Tire size</span><strong>${escapeHtml(job.tire_size)}</strong></div>
+              <div class="detail"><span>License plate</span><strong>${escapeHtml(job.license_plate || "Not recorded")}</strong></div>
               <div class="detail"><span>Location</span><strong>${escapeHtml(job.location)}</strong></div>
               <div class="detail"><span>Photo</span><strong>${escapeHtml(job.photo_name || "No photo uploaded")}</strong></div>
+              <div class="detail"><span>Policy agreement</span><strong>${job.policies_accepted ? "Accepted" : "Not recorded"}</strong></div>
+              <div class="detail"><span>Electronic signature</span><strong>${escapeHtml(job.signature_name || "Not recorded")}</strong></div>
+              <div class="detail"><span>Signed</span><strong>${job.signed_at ? formatDate(job.signed_at) : "Not recorded"}</strong></div>
+              <div class="detail"><span>Policy version</span><strong>${escapeHtml(job.policy_version || "Not recorded")}</strong></div>
             </div>
 
             <div class="job-notes">
@@ -167,19 +182,31 @@ async function renderJobs() {
 
             ${job.photo_url ? `<img class="job-photo" src="${job.photo_url}" alt="Uploaded customer photo for ${escapeHtml(job.service)}" />` : ""}
 
-            <div class="eta-row">
-              <input type="text" value="${escapeHtml(job.eta)}" placeholder="Set ETA, ex: 25 minutes" data-eta-input />
-              <button class="neutral" type="button" data-action="eta">Save ETA</button>
-            </div>
+            ${
+              job.status === "complete"
+                ? `
+                  <div class="job-actions">
+                    <button class="neutral" type="button" data-action="restore">Restore to active</button>
+                    <a class="action-button neutral" href="sms:${smsPhoneNumber(job.phone)}">Text customer</a>
+                    <a class="action-button neutral" href="tel:${publicPhoneNumber(job.phone)}">Call customer</a>
+                  </div>
+                `
+                : `
+                  <div class="eta-row">
+                    <input type="text" value="${escapeHtml(job.eta)}" placeholder="Set ETA, ex: 25 minutes" data-eta-input />
+                    <button class="neutral" type="button" data-action="eta">Save ETA</button>
+                  </div>
 
-            <div class="job-actions">
-              <button class="accept" type="button" data-action="accept">Accept job</button>
-              <button class="decline" type="button" data-action="decline">Decline</button>
-              <button class="complete" type="button" data-action="complete">Mark complete</button>
-              <a class="action-button neutral" href="${job.eta ? smsLink(job.phone, etaMessage(job.eta)) : `sms:${smsPhoneNumber(job.phone)}`}" data-action="text-eta">Text ETA</a>
-              <a class="action-button neutral" href="sms:${smsPhoneNumber(job.phone)}">Text customer</a>
-              <a class="action-button neutral" href="tel:${publicPhoneNumber(job.phone)}">Call customer</a>
-            </div>
+                  <div class="job-actions">
+                    <button class="accept" type="button" data-action="accept">Accept job</button>
+                    <button class="decline" type="button" data-action="decline">Decline</button>
+                    <button class="complete" type="button" data-action="complete">Complete &amp; archive</button>
+                    <a class="action-button neutral" href="${job.eta ? smsLink(job.phone, etaMessage(job.eta)) : `sms:${smsPhoneNumber(job.phone)}`}" data-action="text-eta">Text ETA</a>
+                    <a class="action-button neutral" href="sms:${smsPhoneNumber(job.phone)}">Text customer</a>
+                    <a class="action-button neutral" href="tel:${publicPhoneNumber(job.phone)}">Call customer</a>
+                  </div>
+                `
+            }
           </article>
         `
       )
@@ -225,12 +252,16 @@ requestForm?.addEventListener("submit", async (event) => {
       make: formData.get("make"),
       model: formData.get("model"),
       tire_size: formData.get("tireSize"),
+      license_plate: formData.get("licensePlate").trim().toUpperCase(),
       service: formData.get("service"),
       location: formData.get("location"),
       photo_name: uploadedPhoto.photoName,
       photo_path: uploadedPhoto.photoPath,
       notes: formData.get("notes"),
       policies_accepted: formData.get("policiesAccepted") === "on",
+      signature_name: formData.get("signatureName").trim(),
+      signed_at: new Date().toISOString(),
+      policy_version: formData.get("policyVersion"),
     });
 
     requestForm.reset();
@@ -278,6 +309,7 @@ jobList?.addEventListener("click", async (event) => {
   if (action === "accept") await updateJob(jobId, { status: "accepted" });
   if (action === "decline") await updateJob(jobId, { status: "declined" });
   if (action === "complete") await updateJob(jobId, { status: "complete" });
+  if (action === "restore") await updateJob(jobId, { status: "accepted" });
   if (action === "eta") {
     const eta = jobCard.querySelector("[data-eta-input]").value.trim();
     await updateJob(jobId, { eta });
@@ -293,6 +325,21 @@ jobList?.addEventListener("click", async (event) => {
 
     updateJob(jobId, { eta });
   }
+});
+
+jobFilterButtons.forEach((button) => {
+  button.addEventListener("click", async () => {
+    currentJobFilter = button.dataset.jobFilter;
+    jobFilterButtons.forEach((option) => {
+      const isSelected = option === button;
+      option.classList.toggle("is-active", isSelected);
+      option.setAttribute("aria-selected", String(isSelected));
+    });
+    if (jobsTitle) {
+      jobsTitle.textContent = currentJobFilter === "archive" ? "Completed archive" : "Active requests";
+    }
+    await renderJobs();
+  });
 });
 
 jobList?.addEventListener("input", (event) => {
