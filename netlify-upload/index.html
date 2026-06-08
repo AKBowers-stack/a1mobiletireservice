@@ -8,7 +8,7 @@
       name="description"
       content="A1 Mobile Tire Service roadside request form for 24/7 mobile tire service, commercial tire service, lockouts, jumpstarts, and fuel delivery."
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260608-1" />
   </head>
   <body>
     <div class="app-shell" id="top">
@@ -119,6 +119,51 @@
               </p>
             </div>
             <a class="action-button call-button provider-button" href="tel:2625273209">Call to learn more</a>
+          </section>
+
+          <section class="app-section membership-section" aria-labelledby="membership-title">
+            <div class="membership-intro">
+              <div>
+                <p class="eyebrow">Monthly membership</p>
+                <h2 id="membership-title">A1 Roadside Relief</h2>
+                <p>
+                  Stay covered for common roadside issues with a monthly plan built for everyday drivers who want
+                  convenient help without the standard service charge each time.
+                </p>
+              </div>
+              <div class="membership-price">
+                <strong>$79.99</strong>
+                <span>per month</span>
+              </div>
+            </div>
+
+            <div class="membership-benefits" aria-label="Membership benefits">
+              <div><strong>1 spare mount</strong><span>per month</span></div>
+              <div><strong>1 jumpstart</strong><span>per month</span></div>
+              <div><strong>1 lockout</strong><span>per month</span></div>
+            </div>
+
+            <div class="membership-note">
+              <h3>Member tire benefit</h3>
+              <p>
+                When replacement tires are purchased from A1 Mobile Tire Service, members pay for the tires and
+                applicable fees without the standard passenger-vehicle service charge.
+              </p>
+            </div>
+
+            <ul class="membership-terms">
+              <li>Benefits apply to one registered passenger vehicle.</li>
+              <li>Benefits begin seven days after enrollment and do not cover an existing breakdown.</li>
+              <li>The membership must be active and paid at the time service is requested.</li>
+              <li>Services do not roll over and are subject to technician availability.</li>
+              <li>Tires, taxes, disposal fees, valve stems, specialty parts, damaged wheels, and extra labor are not included.</li>
+              <li>Commercial vehicles, semi trucks, unsafe conditions, and specialty equipment may require separate pricing.</li>
+            </ul>
+
+            <div class="membership-signup">
+              <p>Start your membership securely through PayPal.</p>
+              <div id="paypal-container-8UXKCYXLGZS28"></div>
+            </div>
           </section>
 
           <section class="app-section" aria-labelledby="service-title">
@@ -294,6 +339,14 @@
     </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script
+      src="https://www.paypal.com/sdk/js?client-id=BAAaJjIOVJUGKsz55w9WnjUlugyrrVhCe-4YZAwNQ6gNht7S-hhdNyUpDpFZcFP8gMkLudYeyEioLrcBX0&amp;components=hosted-buttons&amp;enable-funding=venmo&amp;currency=USD"
+    ></script>
+    <script>
+      paypal.HostedButtons({
+        hostedButtonId: "8UXKCYXLGZS28",
+      }).render("#paypal-container-8UXKCYXLGZS28");
+    </script>
     <script src="supabase-config.js?v=20260607-1"></script>
     <script src="script.js?v=20260607-1"></script>
   </body>
