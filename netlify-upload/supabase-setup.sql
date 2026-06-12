@@ -24,6 +24,8 @@ alter table public.service_requests add column if not exists license_plate text;
 alter table public.service_requests add column if not exists signature_name text;
 alter table public.service_requests add column if not exists signed_at timestamptz;
 alter table public.service_requests add column if not exists policy_version text;
+alter table public.service_requests add column if not exists cancellation_token uuid;
+alter table public.service_requests add column if not exists cancelled_at timestamptz;
 
 alter table public.service_requests enable row level security;
 
@@ -55,6 +57,53 @@ to authenticated
 using (true)
 with check (true);
 
+drop policy if exists "Admins can delete service requests" on public.service_requests;
+create policy "Admins can delete service requests"
+on public.service_requests
+for delete
+to authenticated
+using (true);
+
+create or replace function public.get_service_request_status(request_id uuid, request_token uuid)
+returns text
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select status
+  from public.service_requests
+  where id = request_id
+    and cancellation_token = request_token
+  limit 1;
+$$;
+
+revoke all on function public.get_service_request_status(uuid, uuid) from public;
+grant execute on function public.get_service_request_status(uuid, uuid) to anon, authenticated;
+
+create or replace function public.cancel_service_request(request_id uuid, request_token uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  updated_count integer;
+begin
+  update public.service_requests
+  set status = 'cancelled', cancelled_at = now()
+  where id = request_id
+    and cancellation_token = request_token
+    and status = 'new';
+
+  get diagnostics updated_count = row_count;
+  return updated_count = 1;
+end;
+$$;
+
+revoke all on function public.cancel_service_request(uuid, uuid) from public;
+grant execute on function public.cancel_service_request(uuid, uuid) to anon, authenticated;
+
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'request-photos',
@@ -80,5 +129,12 @@ drop policy if exists "Admins can read request photos" on storage.objects;
 create policy "Admins can read request photos"
 on storage.objects
 for select
+to authenticated
+using (bucket_id = 'request-photos');
+
+drop policy if exists "Admins can delete request photos" on storage.objects;
+create policy "Admins can delete request photos"
+on storage.objects
+for delete
 to authenticated
 using (bucket_id = 'request-photos');

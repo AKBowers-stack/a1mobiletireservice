@@ -19,7 +19,18 @@ const adminLoginMessage = document.querySelector("[data-admin-login-message]");
 const adminSignOutButtons = document.querySelectorAll("[data-admin-sign-out]");
 const jobFilterButtons = document.querySelectorAll("[data-job-filter]");
 const jobsTitle = document.querySelector("[data-jobs-title]");
+const cancelRequestPanel = document.querySelector("[data-cancel-request-panel]");
+const cancelRequestButton = document.querySelector("[data-cancel-request]");
+const cancelRequestMessage = document.querySelector("[data-cancel-request-message]");
+const depositPanel = document.querySelector("[data-deposit-panel]");
+const depositTerms = document.querySelector("[data-deposit-terms]");
+const depositPayment = document.querySelector("[data-deposit-payment]");
+const depositStatus = document.querySelector("[data-deposit-status]");
+const depositReady = document.querySelector("[data-deposit-ready]");
 let currentJobFilter = "active";
+const recentRequestStorageKey = "a1-recent-service-request";
+let depositButtonRendered = false;
+let requestStatusTimer;
 
 function setSelectedService(service, selectedButton) {
   if (!selectedServiceInput || !summaryService) return;
@@ -70,6 +81,16 @@ function smsLink(phone, message) {
   return `sms:${smsPhoneNumber(phone)}${separator}body=${encodeURIComponent(message)}`;
 }
 
+function paymentRequestLink(job) {
+  const requestId = encodeURIComponent(job.id);
+  const token = encodeURIComponent(job.cancellation_token || "");
+  return `https://a1mobiletireservice.netlify.app/?request=${requestId}&token=${token}#request`;
+}
+
+function paymentRequestMessage(job) {
+  return `A1 Mobile Tire Service accepted your request. Review the deposit terms and pay the $150 service deposit here: ${paymentRequestLink(job)}`;
+}
+
 async function uploadPhoto(file) {
   if (!file || !file.name) return { photoPath: "", photoName: "" };
 
@@ -98,8 +119,135 @@ async function addJob(data) {
   if (error) throw error;
 }
 
+function getRecentRequest() {
+  try {
+    return JSON.parse(localStorage.getItem(recentRequestStorageKey) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function saveRequestFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("request");
+  const token = params.get("token");
+
+  if (id && token) {
+    localStorage.setItem(recentRequestStorageKey, JSON.stringify({ id, token }));
+  }
+}
+
+function showCancelRequestPanel() {
+  if (!cancelRequestPanel) return;
+  cancelRequestPanel.hidden = !getRecentRequest();
+}
+
+function showDepositPanel() {
+  if (!depositPanel) return;
+  depositPanel.hidden = !getRecentRequest();
+}
+
+async function checkRecentRequestStatus() {
+  const request = getRecentRequest();
+  if (!request || !depositPanel || !depositStatus || !depositReady) return;
+
+  depositPanel.hidden = false;
+  const { data, error } = await supabaseClient.rpc("get_service_request_status", {
+    request_id: request.id,
+    request_token: request.token,
+  });
+
+  if (error) {
+    depositStatus.textContent = "Could not check request status. Please refresh or call 262-527-3209.";
+    depositReady.hidden = true;
+    return;
+  }
+
+  if (!data) {
+    depositStatus.textContent = "This request could not be found. Please call 262-527-3209.";
+    depositReady.hidden = true;
+    cancelRequestPanel.hidden = true;
+    return;
+  }
+
+  depositReady.hidden = data !== "accepted";
+  cancelRequestPanel.hidden = data !== "new";
+
+  const statusMessages = {
+    new: "Request received. Waiting for A1 Mobile Tire Service to review and accept the job.",
+    accepted: "Request accepted. Review the terms below to make the $150 service deposit.",
+    declined: "This request was not accepted. Please call 262-527-3209 with any questions.",
+    cancelled: "This dispatch request has been canceled.",
+    complete: "This service request has been completed.",
+  };
+  depositStatus.textContent = statusMessages[data] || `Request status: ${data}`;
+}
+
+function renderDepositButton() {
+  if (depositButtonRendered || !window.paypal) return;
+
+  window.paypal
+    .HostedButtons({
+      hostedButtonId: "N56RWUBQ9QXM6",
+    })
+    .render("#paypal-container-N56RWUBQ9QXM6");
+  depositButtonRendered = true;
+}
+
+async function cancelRecentRequest() {
+  const request = getRecentRequest();
+  if (!request || !cancelRequestMessage || !cancelRequestButton) return;
+
+  const confirmed = window.confirm(
+    "Cancel this dispatch request? This only works before A1 Mobile Tire Service accepts the job."
+  );
+  if (!confirmed) return;
+
+  cancelRequestButton.disabled = true;
+  cancelRequestMessage.textContent = "Canceling request...";
+
+  const { data, error } = await supabaseClient.rpc("cancel_service_request", {
+    request_id: request.id,
+    request_token: request.token,
+  });
+
+  if (error) {
+    cancelRequestMessage.textContent = `Request could not be canceled: ${error.message}`;
+    cancelRequestButton.disabled = false;
+    return;
+  }
+
+  if (!data) {
+    cancelRequestMessage.textContent =
+      "This request can no longer be canceled online. Please call 262-527-3209 for assistance.";
+    cancelRequestButton.disabled = false;
+    return;
+  }
+
+  localStorage.removeItem(recentRequestStorageKey);
+  cancelRequestMessage.textContent = "Your dispatch request has been canceled.";
+  cancelRequestButton.hidden = true;
+  if (depositPanel) depositPanel.hidden = true;
+}
+
 async function updateJob(id, changes) {
   const { error } = await supabaseClient.from("service_requests").update(changes).eq("id", id);
+  if (error) throw error;
+  await renderJobs();
+}
+
+async function deleteJob(id, photoPath) {
+  const confirmed = window.confirm(
+    "Permanently delete this request? This cannot be undone and should only be used for duplicates or unneeded requests."
+  );
+  if (!confirmed) return;
+
+  if (photoPath) {
+    const { error: photoError } = await supabaseClient.storage.from("request-photos").remove([photoPath]);
+    if (photoError) throw photoError;
+  }
+
+  const { error } = await supabaseClient.from("service_requests").delete().eq("id", id);
   if (error) throw error;
   await renderJobs();
 }
@@ -126,15 +274,17 @@ async function renderJobs() {
         totals[job.status] = (totals[job.status] || 0) + 1;
         return totals;
       },
-      { new: 0, accepted: 0, declined: 0, complete: 0 }
+      { new: 0, accepted: 0, declined: 0, complete: 0, cancelled: 0 }
     );
 
     counts.new.textContent = countByStatus.new;
     counts.accepted.textContent = countByStatus.accepted;
-    counts.complete.textContent = countByStatus.complete;
+    counts.complete.textContent = countByStatus.complete + countByStatus.cancelled;
 
     const visibleJobs = jobs.filter((job) =>
-      currentJobFilter === "archive" ? job.status === "complete" : job.status !== "complete"
+      currentJobFilter === "archive"
+        ? job.status === "complete" || job.status === "cancelled"
+        : job.status !== "complete" && job.status !== "cancelled"
     );
 
     if (!visibleJobs.length) {
@@ -152,7 +302,12 @@ async function renderJobs() {
     jobList.innerHTML = jobsWithPhotos
       .map(
         (job) => `
-          <article class="job-card" data-job-id="${job.id}" data-customer-phone="${publicPhoneNumber(job.phone)}">
+          <article
+            class="job-card"
+            data-job-id="${job.id}"
+            data-customer-phone="${publicPhoneNumber(job.phone)}"
+            data-photo-path="${escapeHtml(job.photo_path)}"
+          >
             <div class="job-top">
               <div>
                 <h3 class="job-title">${escapeHtml(job.service)} &middot; ${escapeHtml(job.name)}</h3>
@@ -173,6 +328,11 @@ async function renderJobs() {
               <div class="detail"><span>Electronic signature</span><strong>${escapeHtml(job.signature_name || "Not recorded")}</strong></div>
               <div class="detail"><span>Signed</span><strong>${job.signed_at ? formatDate(job.signed_at) : "Not recorded"}</strong></div>
               <div class="detail"><span>Policy version</span><strong>${escapeHtml(job.policy_version || "Not recorded")}</strong></div>
+              ${
+                job.cancelled_at
+                  ? `<div class="detail"><span>Canceled</span><strong>${formatDate(job.cancelled_at)}</strong></div>`
+                  : ""
+              }
             </div>
 
             <div class="job-notes">
@@ -183,12 +343,17 @@ async function renderJobs() {
             ${job.photo_url ? `<img class="job-photo" src="${job.photo_url}" alt="Uploaded customer photo for ${escapeHtml(job.service)}" />` : ""}
 
             ${
-              job.status === "complete"
+              job.status === "complete" || job.status === "cancelled"
                 ? `
                   <div class="job-actions">
-                    <button class="neutral" type="button" data-action="restore">Restore to active</button>
+                    ${
+                      job.status === "complete"
+                        ? '<button class="neutral" type="button" data-action="restore">Restore to active</button>'
+                        : ""
+                    }
                     <a class="action-button neutral" href="sms:${smsPhoneNumber(job.phone)}">Text customer</a>
                     <a class="action-button neutral" href="tel:${publicPhoneNumber(job.phone)}">Call customer</a>
+                    <button class="delete-request" type="button" data-action="delete">Delete request</button>
                   </div>
                 `
                 : `
@@ -201,9 +366,15 @@ async function renderJobs() {
                     <button class="accept" type="button" data-action="accept">Accept job</button>
                     <button class="decline" type="button" data-action="decline">Decline</button>
                     <button class="complete" type="button" data-action="complete">Complete &amp; archive</button>
+                    ${
+                      job.status === "accepted" && job.cancellation_token
+                        ? `<a class="action-button neutral" href="${smsLink(job.phone, paymentRequestMessage(job))}">Text payment link</a>`
+                        : ""
+                    }
                     <a class="action-button neutral" href="${job.eta ? smsLink(job.phone, etaMessage(job.eta)) : `sms:${smsPhoneNumber(job.phone)}`}" data-action="text-eta">Text ETA</a>
                     <a class="action-button neutral" href="sms:${smsPhoneNumber(job.phone)}">Text customer</a>
                     <a class="action-button neutral" href="tel:${publicPhoneNumber(job.phone)}">Call customer</a>
+                    <button class="delete-request" type="button" data-action="delete">Delete request</button>
                   </div>
                 `
             }
@@ -246,7 +417,11 @@ requestForm?.addEventListener("submit", async (event) => {
     const photo = formData.get("photo");
     const uploadedPhoto = await uploadPhoto(photo);
 
+    const requestId = crypto.randomUUID();
+    const cancellationToken = crypto.randomUUID();
+
     await addJob({
+      id: requestId,
       name: formData.get("name"),
       phone: formData.get("phone"),
       make: formData.get("make"),
@@ -262,11 +437,22 @@ requestForm?.addEventListener("submit", async (event) => {
       signature_name: formData.get("signatureName").trim(),
       signed_at: new Date().toISOString(),
       policy_version: formData.get("policyVersion"),
+      cancellation_token: cancellationToken,
     });
 
+    localStorage.setItem(
+      recentRequestStorageKey,
+      JSON.stringify({ id: requestId, token: cancellationToken })
+    );
     requestForm.reset();
     setSelectedService("Tire replacement");
-    formMessage.textContent = "Request submitted. A1 Mobile Tire Service will review your job details.";
+    formMessage.textContent =
+      "Request submitted. A1 Mobile Tire Service will review it before the $150 deposit becomes available.";
+    if (depositTerms) depositTerms.checked = false;
+    if (depositPayment) depositPayment.hidden = true;
+    showDepositPanel();
+    showCancelRequestPanel();
+    await checkRecentRequestStatus();
   } catch (error) {
     formMessage.textContent = `Request could not be submitted: ${error.message}`;
   }
@@ -310,6 +496,13 @@ jobList?.addEventListener("click", async (event) => {
   if (action === "decline") await updateJob(jobId, { status: "declined" });
   if (action === "complete") await updateJob(jobId, { status: "complete" });
   if (action === "restore") await updateJob(jobId, { status: "accepted" });
+  if (action === "delete") {
+    try {
+      await deleteJob(jobId, jobCard.dataset.photoPath);
+    } catch (error) {
+      alert(`Request could not be deleted: ${error.message}`);
+    }
+  }
   if (action === "eta") {
     const eta = jobCard.querySelector("[data-eta-input]").value.trim();
     await updateJob(jobId, { eta });
@@ -342,6 +535,13 @@ jobFilterButtons.forEach((button) => {
   });
 });
 
+cancelRequestButton?.addEventListener("click", cancelRecentRequest);
+
+depositTerms?.addEventListener("change", () => {
+  if (depositPayment) depositPayment.hidden = !depositTerms.checked;
+  if (depositTerms.checked) renderDepositButton();
+});
+
 jobList?.addEventListener("input", (event) => {
   if (!event.target.matches("[data-eta-input]")) return;
 
@@ -360,4 +560,11 @@ if (bottomRequest) {
 }
 
 views.forEach((view) => view.classList.add("is-active"));
+saveRequestFromUrl();
+showDepositPanel();
+showCancelRequestPanel();
+checkRecentRequestStatus();
+if (depositPanel) {
+  requestStatusTimer = window.setInterval(checkRecentRequestStatus, 15000);
+}
 showAdminForSession();

@@ -8,7 +8,7 @@
       name="description"
       content="A1 Mobile Tire Service roadside request form for 24/7 mobile tire service, commercial tire service, lockouts, jumpstarts, and fuel delivery."
     />
-    <link rel="stylesheet" href="styles.css?v=20260608-1" />
+    <link rel="stylesheet" href="styles.css?v=20260612-2" />
   </head>
   <body>
     <div class="app-shell" id="top">
@@ -163,6 +163,16 @@
             <div class="membership-signup">
               <p>Start your membership securely through PayPal.</p>
               <div id="paypal-container-8UXKCYXLGZS28"></div>
+              <div class="membership-manage">
+                <a
+                  href="https://www.paypal.com/myaccount/autopay/"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Manage or cancel membership
+                </a>
+                <span>Need help? Call <a href="tel:2625273209">262-527-3209</a>.</span>
+              </div>
             </div>
           </section>
 
@@ -317,6 +327,62 @@
               <button class="action-button call-button full-width" type="submit">Submit Request</button>
               <p class="form-message" data-form-message role="status"></p>
             </form>
+
+            <section class="deposit-panel" data-deposit-panel hidden aria-labelledby="deposit-title">
+              <div class="deposit-heading">
+                <div>
+                  <p class="eyebrow">Next step</p>
+                  <h3 id="deposit-title">Service deposit</h3>
+                </div>
+                <strong>$150</strong>
+              </div>
+
+              <p class="deposit-status" data-deposit-status>
+                Request received. Waiting for A1 Mobile Tire Service to review and accept the job.
+              </p>
+
+              <div class="deposit-ready" data-deposit-ready hidden>
+                <p>
+                  Your request has been accepted. Pay the deposit below so A1 Mobile Tire Service can confirm
+                  scheduling and dispatch.
+                </p>
+
+                <ul>
+                  <li>The deposit is applied toward your final service balance.</li>
+                  <li>Any remaining balance is due after service is completed.</li>
+                  <li>The deposit becomes non-refundable once a technician is dispatched.</li>
+                  <li>Incorrect or incomplete information may result in additional charges.</li>
+                  <li>Payment does not guarantee an exact arrival time.</li>
+                </ul>
+
+                <label class="policy-check">
+                  <input type="checkbox" data-deposit-terms />
+                  <span>
+                    I understand and agree to the service deposit terms and the
+                    <a href="policies.html" target="_blank" rel="noopener">A1 Mobile Tire Service policies</a>.
+                  </span>
+                </label>
+
+                <div class="deposit-payment" data-deposit-payment hidden>
+                  <div id="paypal-container-N56RWUBQ9QXM6"></div>
+                </div>
+                <p class="deposit-help">After payment, A1 Mobile Tire Service will confirm scheduling and dispatch.</p>
+              </div>
+            </section>
+
+            <section class="cancel-request-panel" data-cancel-request-panel hidden aria-labelledby="cancel-request-title">
+              <div>
+                <h3 id="cancel-request-title">Need to cancel this request?</h3>
+                <p>
+                  You may cancel online while the request is still waiting for acceptance. Once a technician has
+                  been accepted or dispatched, call A1 Mobile Tire Service because service-charge terms may apply.
+                </p>
+              </div>
+              <button class="action-button cancel-request-button" type="button" data-cancel-request>
+                Cancel dispatch request
+              </button>
+              <p class="form-message" data-cancel-request-message role="status"></p>
+            </section>
           </section>
         </section>
 
@@ -347,7 +413,7 @@
         hostedButtonId: "8UXKCYXLGZS28",
       }).render("#paypal-container-8UXKCYXLGZS28");
     </script>
-    <script src="supabase-config.js?v=20260607-1"></script>
-    <script src="script.js?v=20260607-1"></script>
+    <script src="supabase-config.js?v=20260612-2"></script>
+    <script src="script.js?v=20260612-2"></script>
   </body>
 </html>
